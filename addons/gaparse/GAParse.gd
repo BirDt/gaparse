@@ -20,7 +20,7 @@ static func chars(mchars: Array[String]) -> Callable:
 	var char_matchers: Array[Callable] = []
 	for c in mchars:
 		char_matchers.push_back(GAParse.char(c))
-	return either(char_matchers)
+	return any(char_matchers)
 
 static func word(mword: String) -> Callable:
 	return func(input: String) -> Dictionary:
@@ -29,7 +29,7 @@ static func word(mword: String) -> Callable:
 		else:
 			return {success=false}
 
-static func either(parsers: Array[Callable]) -> Callable:
+static func any(parsers: Array[Callable]) -> Callable:
 	return func(input: String) -> Dictionary:
 		for p in parsers:
 			var res = p.call(input)
