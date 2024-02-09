@@ -1,6 +1,13 @@
 extends Object
 class_name GAParse
 
+static func eof() -> Callable:
+	return func(input: String) -> Dictionary:
+		if input == "":
+			return {success=true, result="", rest=""}
+		else:
+			return {success=false}
+
 static func char(mchar: String) -> Callable:
 	assert(len(mchar) == 1, "char parser must take a string argument of exactly length 1")
 	return func(input: String) -> Dictionary:
@@ -60,3 +67,29 @@ static func one_or_many(parser: Callable) -> Callable:
 			else:
 				break
 		return {success=true, result=result, rest=rest}
+
+static func many(parser: Callable) -> Callable:
+	return func(input: String) -> Dictionary:
+		var result = ""
+		var rest = input
+		for c in rest:
+			var res = parser.call(rest)
+			if res["success"]:
+				rest = res["rest"]
+				result += res["result"]
+			else:
+				break
+		return {success=true, result=result, rest=rest}
+
+static func between(open: Callable, parser: Callable, close: Callable) -> Callable:
+	return func(input: String) -> Dictionary:
+		var open_res = open.call(input)
+		if not open_res["success"]:
+			return {success=false}
+		var res = parser.call(open_res["rest"])
+		if not res["success"]:
+			return {success=false}
+		var close_res = close.call(res["rest"])
+		if not close_res["success"]:
+			return {success=false}
+		return {success=true, result=res["result"], rest=close_res["rest"]}
