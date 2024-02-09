@@ -1,5 +1,14 @@
 extends GutTest
 
+func test_eof():
+	var match_eof: Callable = GAParse.eof()
+	var success_result = match_eof.call("")
+	var fail_result = match_eof.call("a")
+	assert_true(success_result["success"], "Should match first when input is empty")
+	assert_eq(success_result["result"], "", "Should return an empty string on a successful match")
+	assert_eq(success_result["rest"], "", "Should return and empty string on a successful match")
+	assert_false(fail_result["success"], "Should fail to match when string is not empty")
+
 func test_char():
 	var match_c: Callable = GAParse.char("c")
 	var success_result = match_c.call("champion")
@@ -59,3 +68,29 @@ func test_one_or_many():
 	assert_eq(success_result["result"], "aaaaaaa", "Should return matched string on a successful match")
 	assert_eq(success_result["rest"], "bbbb", "Should return the rest of the string on a successful match")
 	assert_false(fail_result["success"], "Should fail to match when input does not start with many a's")
+
+func test_many():
+	var match_many_a: Callable = GAParse.many(GAParse.char("a"))
+	var success_result_one = match_many_a.call("aaaaaaabbbb")
+	var success_result_two = match_many_a.call("baaaaaaabbbb")
+	assert_true(success_result_one["success"], "Should match prefix when input starts with many a's")
+	assert_eq(success_result_one["result"], "aaaaaaa", "Should return matched string on a successful match")
+	assert_eq(success_result_one["rest"], "bbbb", "Should return the rest of the string on a successful match")
+	assert_true(success_result_two["success"], "Should match prefix when input starts with no a's")
+	assert_eq(success_result_two["result"], "", "Should return matched string on a successful match")
+	assert_eq(success_result_two["rest"], "baaaaaaabbbb", "Should return the rest of the string on a successful match")
+
+func test_between():
+	var match_parens: Callable = GAParse.between(GAParse.char("("),\
+												GAParse.many(GAParse.char("a")),\
+												GAParse.char(")"))
+	var success_result = match_parens.call("(aaa)b")
+	print(success_result)
+	var fail_result_one = match_parens.call("aaab")
+	var fail_result_two = match_parens.call("(aaab")
+	print(fail_result_two)
+	assert_true(success_result["success"], "Should match contents between parens when parens prefix string")
+	assert_eq(success_result["result"], "aaa", "Should return the contents between parens")
+	assert_eq(success_result["rest"], "b", "Should return the rest of the string on a successful match")
+	assert_false(fail_result_one["success"], "Should fail to match when input is not prefixed by parens")
+	assert_false(fail_result_two["success"], "Should fail to match when input is not prefixed by matching parens")
