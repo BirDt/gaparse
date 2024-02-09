@@ -37,7 +37,7 @@ func test_word():
 	assert_false(fail_result["success"], "Should fail to match 'person' when input does not start with 'person'")
 
 func test_either():
-	var match_a_or_b: Callable = GAParse.either([GAParse.char("a"), GAParse.char("b")])
+	var match_a_or_b: Callable = GAParse.any([GAParse.char("a"), GAParse.char("b")])
 	var success_result_one = match_a_or_b.call("axe")
 	var success_result_two = match_a_or_b.call("back")
 	var fail_result = match_a_or_b.call("cry")
@@ -50,8 +50,8 @@ func test_either():
 	assert_false(fail_result["success"], "Should fail to match when input does not start with 'a' or 'b'")
 
 func test_seq():
-	var match_a_or_b: Callable = GAParse.either([GAParse.char("a"), GAParse.char("b")])
-	var match_c_or_d: Callable = GAParse.either([GAParse.char("c"), GAParse.char("d")])
+	var match_a_or_b: Callable = GAParse.any([GAParse.char("a"), GAParse.char("b")])
+	var match_c_or_d: Callable = GAParse.any([GAParse.char("c"), GAParse.char("d")])
 	var match_ab_cd_ab_cd: Callable = GAParse.seq([match_a_or_b, match_c_or_d, match_a_or_b, match_c_or_d])
 	var success_result = match_ab_cd_ab_cd.call("adbc3")
 	var fail_result = match_ab_cd_ab_cd.call("cabd")
