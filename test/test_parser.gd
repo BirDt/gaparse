@@ -94,3 +94,38 @@ func test_between():
 	assert_eq(success_result["rest"], "b", "Should return the rest of the string on a successful match")
 	assert_false(fail_result_one["success"], "Should fail to match when input is not prefixed by parens")
 	assert_false(fail_result_two["success"], "Should fail to match when input is not prefixed by matching parens")
+
+func test_count():
+	var match_a_or_b: Callable = GAParse.any([GAParse.char("a"), GAParse.char("b")])
+	var match_ab_four_times: Callable = GAParse.count(4, match_a_or_b)
+	var success_result_one = match_ab_four_times.call("abba3")
+	var match_ab_zero_times: Callable = GAParse.count(0, match_a_or_b)
+	var success_result_two = match_ab_zero_times.call("cabd")
+	var fail_result = match_ab_four_times.call("cabd")
+	assert_true(success_result_one["success"], "Should match prefix when input starts with sequence")
+	assert_eq(success_result_one["result"], "abba", "Should return matched string on a successful match")
+	assert_eq(success_result_one["rest"], "3", "Should return the rest of the string on a successful match")
+	assert_true(success_result_two["success"], "Should match when count is 0")
+	assert_eq(success_result_two["result"], "", "Should return empty string when count is 0")
+	assert_eq(success_result_two["rest"], "cabd", "Should return entire string when count is 0")
+	assert_false(fail_result["success"], "Should fail to match when input does not start with sequence")
+
+func test_option():
+	var match_a_default_b: Callable = GAParse.option("b", GAParse.char("a"))
+	var success_result_one = match_a_default_b.call("a")
+	var success_result_two = match_a_default_b.call("c")
+	assert_true(success_result_one["success"], "Should match parsers when string matches parser")
+	assert_eq(success_result_one["result"], "a", "Should return matched string on a successful match")
+	assert_eq(success_result_one["rest"], "", "Should return the rest of the string on a successful match")
+	assert_true(success_result_two["success"], "Should match parsers when string does not match parser")
+	assert_eq(success_result_two["result"], "b", "Should return default on a failed match")
+	assert_eq(success_result_two["rest"], "c", "Should return the input on a failed match")
+	
+func test_not_followed_by():
+	var match_not_a: Callable = GAParse.not_followed_by(GAParse.char("a"))
+	var success_result = match_not_a.call("back")
+	var fail_result = match_not_a.call("axe")
+	assert_true(success_result["success"], "Should match prefix when input does not start with parser")
+	assert_eq(success_result["result"], "", "Should return nothing on successful match")
+	assert_eq(success_result["rest"], "back", "Should return the input string on successful match")
+	assert_false(fail_result["success"], "Should fail to match when input string starts with parser")
