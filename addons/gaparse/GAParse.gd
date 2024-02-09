@@ -20,7 +20,7 @@ static func chars(mchars: Array[String]) -> Callable:
 	var char_matchers: Array[Callable] = []
 	for c in mchars:
 		char_matchers.push_back(GAParse.char(c))
-	return any(char_matchers)
+	return GAParse.any(char_matchers)
 
 static func word(mword: String) -> Callable:
 	return func(input: String) -> Dictionary:
@@ -93,3 +93,24 @@ static func between(open: Callable, parser: Callable, close: Callable) -> Callab
 		if not close_res["success"]:
 			return {success=false}
 		return {success=true, result=res["result"], rest=close_res["rest"]}
+
+static func count(num: int, parser: Callable) -> Callable:
+	assert(num >= 0, "count parser must take a positive num value")
+	var parsers: Array[Callable] = []
+	for n in range(num):
+		parsers.append(parser)
+	return GAParse.seq(parsers)
+
+static func option(default: String, parser: Callable) -> Callable:
+	return func(input: String) -> Dictionary:
+		var res = parser.call(input)
+		if not res["success"]:
+			return {success=true, result=default, rest=input}
+		return res
+
+static func not_followed_by(parser: Callable) -> Callable:
+	return func(input: String) -> Dictionary:
+		var res = parser.call(input)
+		if res["success"]:
+			return {success=false}
+		return {success=true, result="", rest=input}
