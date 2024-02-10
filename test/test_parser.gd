@@ -85,10 +85,8 @@ func test_between():
 												GAParse.many(GAParse.char("a")),\
 												GAParse.char(")"))
 	var success_result = match_parens.call("(aaa)b")
-	print(success_result)
 	var fail_result_one = match_parens.call("aaab")
 	var fail_result_two = match_parens.call("(aaab")
-	print(fail_result_two)
 	assert_true(success_result["success"], "Should match contents between parens when parens prefix string")
 	assert_eq(success_result["result"], "aaa", "Should return the contents between parens")
 	assert_eq(success_result["rest"], "b", "Should return the rest of the string on a successful match")
