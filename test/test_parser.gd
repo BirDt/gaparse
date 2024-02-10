@@ -12,11 +12,13 @@ func test_eof():
 func test_char():
 	var match_c: Callable = GAParse.char("c")
 	var success_result = match_c.call("champion")
-	var fail_result = match_c.call("apropos")
+	var fail_result_one = match_c.call("apropos")
+	var fail_result_two = match_c.call("")
 	assert_true(success_result["success"], "Should match first 'c' when input starts with 'c'")
 	assert_eq(success_result["result"], "c", "Should return 'c' on a successful match")
 	assert_eq(success_result["rest"], "hampion", "Should return the rest of the string on a successful match")
-	assert_false(fail_result["success"], "Should fail to match 'c' when input does not start with 'c'")
+	assert_false(fail_result_one["success"], "Should fail to match 'c' when input does not start with 'c'")
+	assert_false(fail_result_two["success"], "Should fail to match 'c' when input is empty")
 	
 func test_chars():
 	var match_alpha: Callable = GAParse.chars("abcdefghijklmnopqrstuvwxyz".split(""))

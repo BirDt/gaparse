@@ -11,7 +11,7 @@ static func eof() -> Callable:
 static func char(mchar: String) -> Callable:
 	assert(len(mchar) == 1, "char parser must take a string argument of exactly length 1")
 	return func(input: String) -> Dictionary:
-		if input[0] == mchar:
+		if len(input) > 0 && input[0] == mchar:
 			return {success=true, result=mchar, rest=input.substr(1)}
 		else:
 			return {success=false}
