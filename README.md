@@ -4,5 +4,7 @@
 
 Completely WIP, no docs yet.
 
-Uses [Gut](https://github.com/bitwes/Gut).
 See examples directory for examples of usage.
+
+### Credits
+Uses [Gut](https://github.com/bitwes/Gut).
