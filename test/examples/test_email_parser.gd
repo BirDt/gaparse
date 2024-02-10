@@ -34,3 +34,11 @@ func test_email_parser():
 	assert_eq(success_two["rest"], "; everything here is returned", "Should return remainder of input")
 	assert_false(failure_one["success"], "Should fail to match empty string")
 	assert_false(failure_two["success"], "Should fail to match invalid email address")
+
+func test_email_parser_with_eof():
+	var success_one = EmailParser.parse_email_address_with_eof("birdt_@cyan.sh")
+	var failure_one = EmailParser.parse_email_address_with_eof("1^sdb@w10-a.k.1-2a.-; everything here is returned")
+	assert_true(success_one["success"], "Should match valid email address")
+	assert_eq(success_one["result"], "birdt_@cyan.sh", "Should return matched string")
+	assert_eq(success_one["rest"], "", "Should consume full string")
+	assert_false(failure_one["success"], "Should fail to match a valid email address if it is not the whole input string")
