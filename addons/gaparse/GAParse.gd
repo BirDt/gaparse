@@ -1,6 +1,7 @@
 extends Object
 class_name GAParse
 
+# Returns a parser matching only an empty string
 static func eof() -> Callable:
 	return func(input: String) -> Dictionary:
 		if input == "":
@@ -8,6 +9,7 @@ static func eof() -> Callable:
 		else:
 			return {success=false}
 
+# Returns a parser matching a single character
 static func char(mchar: String) -> Callable:
 	assert(len(mchar) == 1, "char parser must take a string argument of exactly length 1")
 	return func(input: String) -> Dictionary:
@@ -16,12 +18,14 @@ static func char(mchar: String) -> Callable:
 		else:
 			return {success=false}
 
+# Returns a parser matching any of the chars in the input array
 static func chars(mchars: Array[String]) -> Callable:
 	var char_matchers: Array[Callable] = []
 	for c in mchars:
 		char_matchers.push_back(GAParse.char(c))
 	return GAParse.any(char_matchers)
 
+# Returns a parser matching a word or substring
 static func word(mword: String) -> Callable:
 	return func(input: String) -> Dictionary:
 		if input.begins_with(mword):
@@ -29,6 +33,8 @@ static func word(mword: String) -> Callable:
 		else:
 			return {success=false}
 
+# Returns a parser which returns the result of the first matching parser it takes
+# If string `a` is matched by parser `y` and `z`, `any([x, y, z])` will return the result of `y`
 static func any(parsers: Array[Callable]) -> Callable:
 	return func(input: String) -> Dictionary:
 		for p in parsers:
@@ -37,6 +43,7 @@ static func any(parsers: Array[Callable]) -> Callable:
 				return res
 		return {success=false}
 
+# Returns a parser matching a sequence of parsers
 static func seq(parsers: Array[Callable]) -> Callable:
 	return func(input: String) -> Dictionary:
 		var result = ""
@@ -50,6 +57,7 @@ static func seq(parsers: Array[Callable]) -> Callable:
 				return {success=false}
 		return {success=true, result=result, rest=rest}
 
+# Returns a parser matching it's input parser 1 or * times
 static func one_or_many(parser: Callable) -> Callable:
 	return func(input: String) -> Dictionary:
 		var result = ""
@@ -68,6 +76,7 @@ static func one_or_many(parser: Callable) -> Callable:
 				break
 		return {success=true, result=result, rest=rest}
 
+# Returns a parser matching it's input parser 0 or * times
 static func many(parser: Callable) -> Callable:
 	return func(input: String) -> Dictionary:
 		var result = ""
@@ -81,6 +90,8 @@ static func many(parser: Callable) -> Callable:
 				break
 		return {success=true, result=result, rest=rest}
 
+# Returns a parser matching an input between an open and close parser
+# The result of the open and close parsers is ignored, only the result of parser is returned
 static func between(open: Callable, parser: Callable, close: Callable) -> Callable:
 	return func(input: String) -> Dictionary:
 		var open_res = open.call(input)
@@ -94,6 +105,7 @@ static func between(open: Callable, parser: Callable, close: Callable) -> Callab
 			return {success=false}
 		return {success=true, result=res["result"], rest=close_res["rest"]}
 
+# Returns a parser matching a parser num times
 static func count(num: int, parser: Callable) -> Callable:
 	assert(num >= 0, "count parser must take a positive num value")
 	var parsers: Array[Callable] = []
@@ -101,6 +113,8 @@ static func count(num: int, parser: Callable) -> Callable:
 		parsers.append(parser)
 	return GAParse.seq(parsers)
 
+# Returns a parser which returns a default value when parser does not matched
+# No input is consumed when the default is returned
 static func option(default: String, parser: Callable) -> Callable:
 	return func(input: String) -> Dictionary:
 		var res = parser.call(input)
@@ -108,6 +122,7 @@ static func option(default: String, parser: Callable) -> Callable:
 			return {success=true, result=default, rest=input}
 		return res
 
+# Returns a parser which returns success only when parser fails to match
 static func not_followed_by(parser: Callable) -> Callable:
 	return func(input: String) -> Dictionary:
 		var res = parser.call(input)
