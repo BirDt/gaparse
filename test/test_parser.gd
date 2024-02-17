@@ -19,7 +19,27 @@ func test_char():
 	assert_eq(success_result["rest"], "hampion", "Should return the rest of the string on a successful match")
 	assert_false(fail_result_one["success"], "Should fail to match 'c' when input does not start with 'c'")
 	assert_false(fail_result_two["success"], "Should fail to match 'c' when input is empty")
-	
+
+func test_any():
+	var match_any: Callable = GAParse.any()
+	var success_result = match_any.call("champion")
+	var fail_result = match_any.call("")
+	assert_true(success_result["success"], "Should match first 'c' when input starts with 'c'")
+	assert_eq(success_result["result"], "c", "Should return 'c' on a successful match")
+	assert_eq(success_result["rest"], "hampion", "Should return the rest of the string on a successful match")
+	assert_false(fail_result["success"], "Should fail to match any alphabetic characters when input is empty")
+
+func test_any_except():
+	var match_any_but_x: Callable = GAParse.any_except(GAParse.char("x"))
+	var success_result = match_any_but_x.call("champion")
+	var fail_result_one = match_any_but_x.call("")
+	var fail_result_two = match_any_but_x.call("xtra")
+	assert_true(success_result["success"], "Should match first 'c' when input starts with 'c'")
+	assert_eq(success_result["result"], "c", "Should return 'c' on a successful match")
+	assert_eq(success_result["rest"], "hampion", "Should return the rest of the string on a successful match")
+	assert_false(fail_result_one["success"], "Should fail to match any alphabetic characters when input is empty")
+	assert_false(fail_result_two["success"], "Should fail to match when input input begins with the exception character")
+
 func test_chars():
 	var match_alpha: Callable = GAParse.chars("abcdefghijklmnopqrstuvwxyz".split(""))
 	var success_result = match_alpha.call("champion")
@@ -129,3 +149,16 @@ func test_not_followed_by():
 	assert_eq(success_result["result"], "", "Should return nothing on successful match")
 	assert_eq(success_result["rest"], "back", "Should return the input string on successful match")
 	assert_false(fail_result["success"], "Should fail to match when input string starts with parser")
+
+func test_eof_seq():
+	var match_only_ab: Callable = GAParse.eof_seq(GAParse.seq([GAParse.char("a"), GAParse.char("b")]))
+	var success_result = match_only_ab.call("ab")
+	var fail_result_one = match_only_ab.call("a")
+	var fail_result_two = match_only_ab.call("abc")
+	var fail_result_three = match_only_ab.call("")
+	assert_true(success_result["success"], "Should match prefix when input matches exactly the parser sequence")
+	assert_eq(success_result["result"], "ab", "Should return 'ab' on successful match")
+	assert_eq(success_result["rest"], "", "Should match the whole string")
+	assert_false(fail_result_one["success"], "Should fail to match when input does not match sequence")
+	assert_false(fail_result_two["success"], "Should fail to match when input does not match sequence exactly")
+	assert_false(fail_result_three["success"], "Should fail to match when input is empty")
