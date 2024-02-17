@@ -14,12 +14,12 @@ static var additional_atext_chars = GAParse.chars("!#$%&’*+-/=?^_‘{|}~".spli
 # atext = ALPHA / DIGIT / "!" / "#" / "$" / "%" / "&" / "'" / "*" /
 #			"+" / "-" / "/" / "=" / "?" / "^" / "_" / "`" / "{" /
 #			"|" / "}" / "~"
-static var atext_parser = GAParse.one_or_many(GAParse.any([alpha, digit, additional_atext_chars]))
+static var atext_parser = GAParse.one_or_many(GAParse.either([alpha, digit, additional_atext_chars]))
 # From RFC1034
 # let-dig = letter / digit
 # let-dig-hyp = let-dig / "-"
 # ldh-str = let-dig-hyp / let-dig-hyp ldh-str
-static var let_dig_hyp = GAParse.any([alpha, digit, GAParse.char("-")])
+static var let_dig_hyp = GAParse.either([alpha, digit, GAParse.char("-")])
 static var ldh_str_parser = GAParse.one_or_many(let_dig_hyp)
 
 # Shortcut to call the atext parser
